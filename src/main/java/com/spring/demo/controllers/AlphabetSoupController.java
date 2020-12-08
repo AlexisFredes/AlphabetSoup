@@ -22,7 +22,7 @@ public class AlphabetSoupController {
     @ResponseBody
     public ResponseEntity<AlphabetSoupListResponse> list() {
         return new ResponseEntity<AlphabetSoupListResponse>(
-        		new AlphabetSoupListResponse(this.alphabetSoupInteface.list()), 
+        		new AlphabetSoupListResponse(this.alphabetSoupInteface.list()),
         		HttpStatus.OK);
     }
 
@@ -39,11 +39,44 @@ public class AlphabetSoupController {
         		new AlphabetSoupCreate(alphabetSoup.getId()), HttpStatus.CREATED);
     }
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/view/{id}")
     @ResponseBody
-    public Optional<AlphabetSoupModel> getById(@PathVariable("id") UUID id) {
+    public String getById(@PathVariable("id") UUID id) {
 
-        return this.alphabetSoupInteface.getAlphabetSoupById(id);
+        AlphabetSoupModel model = this.alphabetSoupInteface.getAlphabetSoupById(id).get();
+
+        String letters = model.getLetters();
+
+        String lettersShow = "";
+
+        lettersShow += "<Style>table {\n" +
+                "   border: 1px solid #000;\n" +
+                "}\n" +
+                "th, td {\n" +
+                "   text-align: center;\n" +
+                "   border: 1px solid #000;\n" +
+                "}</Style>";
+
+        lettersShow += "<Table>";
+        int h = model.getH();
+        int w = model.getW();
+
+        int pos = 0;
+
+        char soup[][] = new char[h][w];
+
+        for (int i = 0; i < soup.length; i++) {
+            lettersShow += "<tr>";
+            for (int j = 0; j < soup[i].length; j++) {
+                lettersShow += "<td> "+letters.charAt(pos)+" </td>";
+                pos++;
+            }
+            lettersShow += "</tr>";
+        }
+
+        lettersShow += "</Table>";
+
+        return lettersShow;
 
     }
 
