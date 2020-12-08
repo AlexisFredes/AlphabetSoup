@@ -4,6 +4,7 @@ import com.spring.demo.dto.AlphabetSoupCreate;
 import com.spring.demo.dto.AlphabetSoupListResponse;
 import com.spring.demo.models.AlphabetSoupModel;
 import com.spring.demo.services.AlphabetSoupInteface;
+import com.spring.demo.services.GenerateViewInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,9 @@ public class AlphabetSoupController {
 	
     @Autowired
     private AlphabetSoupInteface alphabetSoupInteface;
+
+    @Autowired
+    private GenerateViewInterface generateViewInterface;
 
     @GetMapping("/all")
     @ResponseBody
@@ -41,43 +45,20 @@ public class AlphabetSoupController {
 
     @GetMapping(path = "/view/{id}")
     @ResponseBody
-    public String getById(@PathVariable("id") UUID id) {
+    public String generateViewById(@PathVariable("id") UUID id) {
 
         AlphabetSoupModel model = this.alphabetSoupInteface.getAlphabetSoupById(id).get();
 
         String letters = model.getLetters();
 
-        String lettersShow = "";
+        int[] configSoup = new int[3];
+        configSoup[0] = model.getH();
+        configSoup[1] = model.getW();
+        configSoup[2] = 0;
 
-        lettersShow += "<Style>table {\n" +
-                "   border: 1px solid #000;\n" +
-                "}\n" +
-                "th, td {\n" +
-                "   text-align: center;\n" +
-                "   border: 1px solid #000;\n" +
-                "}</Style>";
+        letters = this.generateViewInterface.generateView(letters, configSoup);
 
-        lettersShow += "<Table>";
-        int h = model.getH();
-        int w = model.getW();
-
-        int pos = 0;
-
-        char soup[][] = new char[h][w];
-
-        for (int i = 0; i < soup.length; i++) {
-            lettersShow += "<tr>";
-            for (int j = 0; j < soup[i].length; j++) {
-                lettersShow += "<td> "+letters.charAt(pos)+" </td>";
-                pos++;
-            }
-            lettersShow += "</tr>";
-        }
-
-        lettersShow += "</Table>";
-
-        return lettersShow;
-
+        return letters;
     }
 
     @DeleteMapping( path = "/{id}" )
