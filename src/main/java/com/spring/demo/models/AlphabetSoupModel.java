@@ -21,7 +21,7 @@ public class AlphabetSoupModel {
     @Column(unique = true, nullable = false, columnDefinition = "BINARY(16)")
     private UUID id;
 
-    private String word;
+    private String words;
 
     @Column(columnDefinition = "text")
     private String letters;
@@ -33,6 +33,10 @@ public class AlphabetSoupModel {
     private boolean ttb = true; //Habilitar o deshabilitar palabras que van desde arriba hacia abajo, por defecto true
     private boolean btt = false; //Habilitar o deshabilitar palabras que van desde abajo hacia arriba, por defecto false
     private boolean d = false; //Habilitar o deshabilitar palabras diagonales, por defecto false
+    private int sr;
+    private int sc;
+    private int er;
+    private int ec;
 
     public void generateAlphabetSoup() {
 
@@ -69,7 +73,7 @@ public class AlphabetSoupModel {
         infoPositions.add(1, rowOccupied);
         infoPositions.add(2, columnOccupied);
 
-        String words[] = this.word.replace(" ", "").split("-");
+        String words[] = this.words.replace(" ", "").split("-");
 
         Random myRand = new Random();
 
