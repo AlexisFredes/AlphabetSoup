@@ -54,16 +54,34 @@ public class CheckWord implements CheckWordInterface {
 
         boolean exit;
 
+        int[] conditionVariables;
+
         if (position[2] == position[4]) {
-            for (int a = position[3]; a <= position[5]; a++){
+
+            conditionVariables = defineSmaller(position[3], position[5]);
+
+            for (int a = conditionVariables[0]; a <= conditionVariables[1]; a++){
                 word += soup[position[2]][a];
                 allPosition.add(position[2]+"-"+a);
             }
+
         }else if (position[3] == position[5]){
-            for (int a = position[2]; a <= position[4]; a++){
+
+            conditionVariables = defineSmaller(position[2], position[4]);
+
+            for (int a = conditionVariables[0]; a <= conditionVariables[1]; a++){
                 word += soup[a][position[3]];
                 allPosition.add(a+"-"+position[3]);
             }
+
+        }else if (position[2] != position[4] && position[3] != position[5]){
+
+            for (int r = position[2]; r <= position[4]; r++){
+                word += soup[r][position[3]];
+                allPosition.add(r + "-" + position[3]);
+                position[3]++;
+            }
+
         }
 
         exit = checkWord(checkWords, word);
@@ -74,6 +92,21 @@ public class CheckWord implements CheckWordInterface {
             allPosition.add(0,"false");
             return allPosition;
         }
+    }
+
+    public int[] defineSmaller(int pos1, int pos2){
+
+        int[] conditionVariables = new int[2];
+
+        if (pos1 < pos2){
+            conditionVariables[0] = pos1;
+            conditionVariables[1] = pos2;
+        }else{
+            conditionVariables[0] = pos2;
+            conditionVariables[1] = pos1;
+        }
+
+        return conditionVariables;
     }
 
     public boolean checkWord(String[] checkWords, String word) {
