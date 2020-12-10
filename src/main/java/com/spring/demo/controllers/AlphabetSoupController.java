@@ -1,8 +1,7 @@
 package com.spring.demo.controllers;
 
-import com.spring.demo.dto.AlphabetSoupCreate;
-import com.spring.demo.dto.AlphabetSoupListResponse;
-import com.spring.demo.dto.AlphabetSoupWordsList;
+import com.spring.demo.constants.Messages;
+import com.spring.demo.dto.*;
 import com.spring.demo.models.AlphabetSoupModel;
 import com.spring.demo.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,9 @@ public class AlphabetSoupController {
     @Autowired
     private CheckWordInterface checkWordInterface;
 
+    @Autowired
+    private CheckLimitsAlphabetSoupInterface checkLimitsAlphabetSoupInterface;
+
     @GetMapping("/all")
     @ResponseBody
     public ResponseEntity<AlphabetSoupListResponse> list() {
@@ -40,47 +42,66 @@ public class AlphabetSoupController {
         AlphabetSoupModel model = this.alphabetSoupInteface.getAlphabetSoupById(id).get();
 
         String letters = model.getLetters();
+        String viewLetters;
 
         int[] configSoup = new int[3];
         configSoup[0] = model.getH();
         configSoup[1] = model.getW();
         configSoup[2] = 0;
 
-        letters = this.generateViewInterface.generateView(letters, configSoup);
+        viewLetters = this.generateViewInterface.generateView(letters, configSoup);
 
-        return letters;
+        return viewLetters;
+
     }
 
     @GetMapping(path = "/list/{id}")
     @ResponseBody
-    public ResponseEntity<AlphabetSoupWordsList> getWordListById(@PathVariable("id") UUID id) {
+    public ResponseEntity<Object> getWordListById(@PathVariable("id") UUID id) {
 
         AlphabetSoupModel model = this.alphabetSoupInteface.getAlphabetSoupById(id).get();
 
-        String Words = model.getWords();
+        String Words = "";
 
-        return new ResponseEntity<AlphabetSoupWordsList>(
+        Words = model.getWords();
+
+        return new ResponseEntity<Object>(
                 new AlphabetSoupWordsList(Words), HttpStatus.OK);
+
     }
 
     @PostMapping()
-    public ResponseEntity<AlphabetSoupCreate> create(@RequestBody AlphabetSoupModel alphabetSoup) {
+    public ResponseEntity<Object> create(@RequestBody AlphabetSoupModel alphabetSoup) {
 
         alphabetSoup.generateAlphabetSoup();
 
         alphabetSoup.generatePosition();
 
-        this.alphabetSoupInteface.saveAlphabetSoup(alphabetSoup);
+        boolean resultValidateLimits = checkLimitsAlphabetSoupInterface.checkHeightWidth(alphabetSoup.getH(), alphabetSoup.getW());
 
-        return new ResponseEntity<AlphabetSoupCreate>(
-                new AlphabetSoupCreate(alphabetSoup.getId()), HttpStatus.CREATED);
+        if (resultValidateLimits) {
+            AlphabetSoupModel alphabetSoupModel = this.alphabetSoupInteface
+                    .saveAlphabetSoup(alphabetSoup);
+            if (alphabetSoupModel == null) {
+                return new ResponseEntity<Object>(new AlphabetSoupCreateErrorDto(Messages.ERROR_INTERNAL_SERVER),
+                        HttpStatus.BAD_REQUEST);
+            }else {
+                return new ResponseEntity<Object>(new AlphabetSoupCreate(alphabetSoup.getId()),
+                        HttpStatus.CREATED);
+            }
+        }
+
+        return new ResponseEntity<Object>(new AlphabetSoupCreateErrorDto(Messages.ERROR_INVALID_DIMENSIONS),
+        HttpStatus.FORBIDDEN);
     }
 
     @PutMapping(path = "/{id}")
     @ResponseBody
-    public boolean checkWordById(
+    public ResponseEntity<CheckWordInAlphabetSoup> checkWordById(
             @PathVariable("id") UUID id,
             @RequestBody AlphabetSoupModel alphabetSoup) {
+
+        boolean exit;
 
         AlphabetSoupModel model = this.alphabetSoupInteface.getAlphabetSoupById(id).get();
 
@@ -102,15 +123,15 @@ public class AlphabetSoupController {
         check = this.checkWordInterface.checkWordInAlphabetSoup(configSoup, checkInfo);
 
         if (check.get(0).equals("false")){
-            return false;
+            exit = false;
         }else {
             model.setLetters(check.get(1));
             this.alphabetSoupInteface.saveAlphabetSoup(model);
-            return true;
+            exit = true;
         }
 
-        //return new ResponseEntity<AlphabetSoupWordsList>(
-               // new AlphabetSoupWordsList(Words), HttpStatus.OK);
+        return new ResponseEntity<CheckWordInAlphabetSoup>(
+                new CheckWordInAlphabetSoup(exit), HttpStatus.OK);
     }
 
     @DeleteMapping( path = "/{id}" )

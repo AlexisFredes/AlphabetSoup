@@ -1,6 +1,5 @@
 package com.spring.demo.services;
 
-import com.spring.demo.repositories.AlphabetSoupRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

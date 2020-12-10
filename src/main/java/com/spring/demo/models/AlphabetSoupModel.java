@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -88,31 +87,31 @@ public class AlphabetSoupModel {
                 switch (randomInteger) {
                     case 0:
                         if (this.ltr) {
-                            this.letters = generateWordLrt(words[a], infoPositions);
+                            this.letters = definePosition(words[a], "lrt", infoPositions);
                             exit = true;
                         }
                         break;
                     case 1:
                         if (this.rtl) {
-                            this.letters = generateWordRtl(words[a], infoPositions);
+                            this.letters = definePosition(words[a], "rtl", infoPositions);
                             exit = true;
                         }
                         break;
                     case 2:
                         if (this.ttb) {
-                            this.letters = generateWordTtb(words[a], infoPositions);
+                            this.letters = definePosition(words[a], "ttb", infoPositions);
                             exit = true;
                         }
                         break;
                     case 3:
                         if (this.btt) {
-                            this.letters = generateWordBtt(words[a], infoPositions);
+                            this.letters = definePosition(words[a], "btt", infoPositions);
                             exit = true;
                         }
                         break;
                     case 4:
                         if (this.d) {
-                            this.letters = generateWordD(words[a], infoPositions);
+                            this.letters = definePosition(words[a], "d", infoPositions);
                             exit = true;
                         }
                         break;
@@ -126,422 +125,135 @@ public class AlphabetSoupModel {
             }
 
             exit = false;
-
         }
-
     }
 
-    private String generateWordLrt(String wordToUse, ArrayList<ArrayList<String>> infoPositions) {
-
-        System.out.println("LRT");
+    public String definePosition(String wordToUse, String type, ArrayList<ArrayList<String>> infoPositions) {
 
         String infoCheck = "";
 
-        String newLetters = "";
+        String newString = "";
+
+        String[] info;
 
         int posRandom[];
 
-        int pos = 0;
-
-        int r = this.h;
-        int c = this.w;
+        boolean exit;
 
         while(true) {
 
-            boolean exit = false;
+            boolean checkColumn = false;
 
-            boolean rowCheck = false;
+            boolean checkRow = false;
 
             boolean checkPosition = false;
 
-            if (r < c) {
-                posRandom = rowColumRandom(r);
+            exit = false;
+
+            if (this.h < this.w) {
+                posRandom = rowColumRandom(this.h);
             } else {
-                posRandom = rowColumRandom(c);
+                posRandom = rowColumRandom(this.w);
             }
 
-            if ( (posRandom[1] + wordToUse.length() - 1 ) < c) {
-                exit = true;
-            }
+            exit = checkPositionRandom(type, posRandom, wordToUse);
 
-            rowCheck = checkRowOccupied(posRandom[0], infoPositions.get(1));
+            if (exit) {
 
-            if (rowCheck) {
-                infoCheck = "lrt-"+posRandom[0]+"-"+posRandom[1]+"-"+wordToUse;
-
-                checkPosition = checkPosition(infoPositions, infoCheck);
-            }
-
-            if (exit && checkPosition && rowCheck) {
-                break;
-            }
-        }
-
-        System.out.println(posRandom[0] + " - " + posRandom[1]);
-
-        int posChar = 0;
-
-        char soup[][] = new char[r][c];
-
-        for (int i = 0; i < soup.length; i++) {
-            System.out.print("|");
-
-            for (int j = 0; j < soup[i].length; j++) {
-
-                if (i == posRandom[0] && j == posRandom[1]) {
-                    if (posChar != wordToUse.length()){
-                        soup[i][j] = wordToUse.charAt(posChar);
-                        posChar++;
-                        posRandom[1]++;
-                        infoPositions.get(0).add(i+""+j+"-"+soup[i][j]);
-                    }else{
-                        soup[i][j] = this.letters.charAt(pos);
-                    }
-
-                } else {
-                    soup[i][j] = this.letters.charAt(pos);
+                if (type.equals("ttb") || type.equals("btt")) {
+                    checkColumn = checkColumnOccupied(posRandom[1], infoPositions.get(2));
+                } else if (type.equals("lrt") || type.equals("rtl")) {
+                    checkRow = checkRowOccupied(posRandom[0], infoPositions.get(1));
+                } else if (type.equals("d")) {
+                    checkColumn = true;
+                    checkRow = true;
                 }
 
-                newLetters += soup[i][j];
-                System.out.print(soup[i][j] + "|");
-                pos++;
+                infoCheck = type + "-" + posRandom[0] + "-" + posRandom[1] + "-" + wordToUse;
+
+                if (checkRow || checkColumn) {
+                    checkPosition = checkPosition(infoPositions, infoCheck);
+                }
             }
 
-            System.out.println("");
+            if (exit && checkPosition) {
+                if (checkColumn || checkRow) {
+                    exit = true;
+                    break;
+                }
+            }
         }
 
-        infoPositions.get(1).add(String.valueOf(posRandom[0]));
+        if (exit){
+            info = infoCheck.split("-");
+            newString = addWordAlphabetSoup(info, infoPositions);
+        }
 
-        return newLetters;
-
+        return newString;
     }
 
-    private String generateWordRtl(String wordToUse, ArrayList<ArrayList<String>> infoPositions) {
+    public boolean checkPositionRandom(String type, int[] posRandom, String wordToUse){
 
-        String infoCheck = "";
+        boolean exit = false;
 
-        System.out.println("RTL");
-
-        String newLetters = "";
-
-        int posRandom[];
-
-        int pos = 0;
-
-        int r = this.h;
-        int c = this.w;
-
-        while(true) {
-
-            boolean exit = false;
-
-            boolean rowCheck = false;
-
-            boolean checkPosition = false;
-
-            if (r < c) {
-                posRandom = rowColumRandom(r);
-            } else {
-                posRandom = rowColumRandom(c);
+        if (type.equals("lrt")) {
+            if ( (posRandom[1] + wordToUse.length() - 1 ) < this.w) {
+                exit = true;
             }
-
+        }else if (type.equals("rtl")) {
             if ( (posRandom[1] - wordToUse.length() - 1 ) >= 0) {
                 exit = true;
             }
-
-            rowCheck = checkRowOccupied(posRandom[0], infoPositions.get(1));
-
-            if (rowCheck){
-
-                infoCheck = "rtl-"+posRandom[0]+"-"+posRandom[1]+"-"+wordToUse;
-
-                checkPosition = checkPosition(infoPositions, infoCheck);
-
-            }
-
-            if (exit && checkPosition && rowCheck) {
-                break;
-            }
-
-        }
-
-        System.out.println(posRandom[0] + " - " + posRandom[1]);
-
-        posRandom[1] -= wordToUse.length() -1;
-
-        int posChar = wordToUse.length() -1;
-
-        char soup[][] = new char[r][c];
-
-        for (int i = 0; i < soup.length; i++) {
-            System.out.print("|");
-
-            for (int j = 0; j < soup[i].length; j++) {
-
-                if (i == posRandom[0] && j == posRandom[1]) {
-
-                    if (posChar != -1){
-                        soup[i][j] = wordToUse.charAt(posChar);
-                        posChar--;
-                        posRandom[1]++;
-                        infoPositions.get(0).add(i+""+j+"-"+soup[i][j]);
-                    } else{
-                        soup[i][j] = this.letters.charAt(pos);
-                    }
-
-                } else {
-                    soup[i][j] = this.letters.charAt(pos);
-                }
-
-                newLetters += soup[i][j];
-                System.out.print(soup[i][j] + "|");
-                pos++;
-            }
-
-            System.out.println("");
-        }
-
-        infoPositions.get(1).add(String.valueOf(posRandom[0]));
-
-        return newLetters;
-
-    }
-
-    private String generateWordTtb(String wordToUse, ArrayList<ArrayList<String>> infoPositions) {
-
-        System.out.println("TTB");
-
-        String infoCheck = "";
-
-        String newLetters = "";
-
-        int posRandom[];
-
-        int pos = 0;
-
-        int r = this.h;
-        int c = this.w;
-
-        while(true) {
-            boolean exit = false;
-
-            boolean columnCheck = false;
-
-            boolean checkPosition = false;
-
-            if (r < c) {
-                posRandom = rowColumRandom(r);
-            } else {
-                posRandom = rowColumRandom(c);
-            }
-
-            if ( (posRandom[0] + wordToUse.length() - 1 ) < r) {
+        }else if (type.equals("ttb")) {
+            if ( (posRandom[0] + wordToUse.length() - 1 ) < this.h) {
                 exit = true;
             }
-
-            columnCheck = checkColumnOccupied(posRandom[1], infoPositions.get(2));
-
-            if (columnCheck){
-
-                infoCheck = "ttb-"+posRandom[0]+"-"+posRandom[1]+"-"+wordToUse;
-
-                checkPosition = checkPosition(infoPositions, infoCheck);
-
-            }
-
-            if (exit && checkPosition && columnCheck) {
-                break;
-            }
-        }
-
-        System.out.println(posRandom[0] + " - " + posRandom[1]);
-
-        int posChar = 0;
-
-        char soup[][] = new char[r][c];
-
-        for (int i = 0; i < soup.length; i++) {
-            System.out.print("|");
-
-            for (int j = 0; j < soup[i].length; j++) {
-
-                if (i == posRandom[0] && j == posRandom[1]) {
-
-                    if (posChar != wordToUse.length()){
-                        soup[i][j] = wordToUse.charAt(posChar);
-                        posChar++;
-                        posRandom[0]++;
-                        infoPositions.get(0).add(i+""+j+"-"+soup[i][j]);
-                    }else{
-                        soup[i][j] = this.letters.charAt(pos);
-                    }
-
-                } else {
-                    soup[i][j] = this.letters.charAt(pos);
-                }
-
-                newLetters += soup[i][j];
-                System.out.print(soup[i][j] + "|");
-                pos++;
-            }
-
-            System.out.println("");
-        }
-
-        infoPositions.get(2).add(String.valueOf(posRandom[1]));
-
-        return newLetters;
-
-    }
-
-    private String generateWordBtt(String wordToUse, ArrayList<ArrayList<String>> infoPositions) {
-
-        System.out.println("BTT");
-
-        String infoCheck = "";
-
-        String newLetters = "";
-
-        int posRandom[];
-
-        int pos = 0;
-
-        int r = this.h;
-        int c = this.w;
-
-        while(true) {
-
-            boolean exit = false;
-
-            boolean columnCheck = false;
-
-            boolean checkPosition = false;
-
-            if (r < c) {
-                posRandom = rowColumRandom(r);
-            } else {
-                posRandom = rowColumRandom(c);
-            }
-
+        }else if (type.equals("btt")) {
             if ( (posRandom[0] - wordToUse.length() - 1 ) >= 0) {
                 exit = true;
             }
-
-            columnCheck = checkColumnOccupied(posRandom[1], infoPositions.get(2));
-
-            if (columnCheck){
-                infoCheck = "btt-"+posRandom[0]+"-"+posRandom[1]+"-"+wordToUse;
-
-                checkPosition = checkPosition(infoPositions, infoCheck);
-            }
-
-            if (exit && checkPosition && columnCheck) {
-                break;
+        }else if (type.equals("d")) {
+            if ( (posRandom[0] + wordToUse.length() - 1 ) < this.h && (posRandom[1] + wordToUse.length() - 1) < this.w) {
+                exit = true;
             }
         }
 
-        System.out.println(posRandom[0] + " - " + posRandom[1]);
-
-        posRandom[0] -= wordToUse.length() -1;
-
-        int posChar = wordToUse.length() -1;
-
-        char soup[][] = new char[r][c];
-
-        for (int i = 0; i < soup.length; i++) {
-            System.out.print("|");
-
-            for (int j = 0; j < soup[i].length; j++) {
-
-                if (i == posRandom[0] && j == posRandom[1]) {
-
-                    if (posChar != -1){
-                        soup[i][j] = wordToUse.charAt(posChar);
-                        posChar--;
-                        posRandom[0]++;
-                        infoPositions.get(0).add(i+""+j+"-"+soup[i][j]);
-                    } else{
-                        soup[i][j] = this.letters.charAt(pos);
-                    }
-
-                } else {
-                    soup[i][j] = this.letters.charAt(pos);
-                }
-
-                newLetters += soup[i][j];
-                System.out.print(soup[i][j] + "|");
-                pos++;
-            }
-
-            System.out.println("");
-        }
-
-        infoPositions.get(2).add(String.valueOf(posRandom[1]));
-
-        return newLetters;
-
+        return exit;
     }
 
-    private String generateWordD(String wordToUse, ArrayList<ArrayList<String>> infoPositions) {
+    public String addWordAlphabetSoup(String[] info, ArrayList<ArrayList<String>> infoPositions){
 
-        System.out.println("D");
+        System.out.println(info[0]);
+
+        System.out.println(info[1] + " - " + info[2]);
 
         String newLetters = "";
 
-        String infoCheck = "";
-
-        int posRandom[];
-
         int pos = 0;
 
-        int r = this.h;
-        int c = this.w;
+        int variables[];
 
-        while(true) {
+        variables = checkType(info);
 
-            boolean exit = false;
+        int initial = 0;
 
-            boolean checkPosition = false;
-
-            if (r < c) {
-                posRandom = rowColumRandom(r);
-            } else {
-                posRandom = rowColumRandom(c);
-            }
-
-            if ( (posRandom[0] + wordToUse.length() - 1 ) < r && (posRandom[1] + wordToUse.length() - 1) < c) {
-                exit = true;
-            }
-
-            infoCheck = "d-"+posRandom[0]+"-"+posRandom[1]+"-"+wordToUse;
-
-            checkPosition = checkPosition(infoPositions, infoCheck);
-
-            if (exit && checkPosition) {
-                break;
-            }
-        }
-
-        System.out.println(posRandom[0] + " - " + posRandom[1]);
-
-        int posChar = 0;
-
-        char soup[][] = new char[r][c];
+        char soup[][] = new char[this.h][this.w];
 
         for (int i = 0; i < soup.length; i++) {
+
             System.out.print("|");
 
             for (int j = 0; j < soup[i].length; j++) {
 
-                if (i == posRandom[0] && j == posRandom[1]) {
+                if (i == variables[1] && j == variables[2]) {
 
-                    if (posChar != wordToUse.length()){
-                        soup[i][j] = wordToUse.charAt(posChar);
-                        posChar++;
-                        posRandom[0]++;
-                        posRandom[1]++;
+                    variables = checkCondition(info, variables, initial);
+
+                    if (variables[3] != 0) {
+                        initial++;
+                        soup[i][j] = info[3].charAt(variables[0]);
                         infoPositions.get(0).add(i+""+j+"-"+soup[i][j]);
-                    }else{
+                    } else {
                         soup[i][j] = this.letters.charAt(pos);
                     }
 
@@ -555,10 +267,16 @@ public class AlphabetSoupModel {
             }
 
             System.out.println("");
+
+        }
+
+        if (info[0].equals("lrt") || info[0].equals("rtl")) {
+            infoPositions.get(1).add(info[1]);
+        }else if (info[0].equals("ttb") || info[0].equals("btt")) {
+            infoPositions.get(2).add(info[2]);
         }
 
         return newLetters;
-
     }
 
     public int[] rowColumRandom(int maxRandom){
@@ -640,6 +358,8 @@ public class AlphabetSoupModel {
 
         int variables[];
 
+        int initial = 0;
+
         variables = checkType(info);
 
         boolean exit = true;
@@ -654,11 +374,20 @@ public class AlphabetSoupModel {
 
                 if (i == variables[1] && j == variables[2]) {
 
-                    check = checkLetter(i+""+j+"-"+info[3].charAt(variables[0]), occupiedPositions);
+                    if (initial == 0) {
+                        check = checkLetter(i+""+j+"-"+info[3].charAt(variables[0]), occupiedPositions);
+                    }else {
+                        if (variables[0] != info[3].length() -1) {
+                            check = checkLetter(i+""+j+"-"+info[3].charAt(variables[0] + 1), occupiedPositions);
+                        }
+                    }
 
                     if (check[0] == false && check[1] == false || check[0] && check[1]) {
-                        variables = checkCondition(info, variables);
+
+                        variables = checkCondition(info, variables, initial);
+
                         if (variables[3] != 0) {
+                            initial++;
                             soup[i][j] = info[3].charAt(variables[0]);
                         } else {
                             soup[i][j] = this.letters.charAt(pos);
@@ -715,7 +444,7 @@ public class AlphabetSoupModel {
         return newValue;
     }
 
-    public int[] checkCondition(String[] info, int variables[]){
+    public int[] checkCondition(String[] info, int variables[], int initial){
         int newVariables[] = variables;
 
         newVariables[3] = 0;
@@ -723,7 +452,9 @@ public class AlphabetSoupModel {
         if (info[0].equals("lrt") || info[0].equals("d")) {
 
             if (newVariables[0] != info[3].length() -1) {
-                newVariables[0]++;
+                if (initial != 0) {
+                    newVariables[0]++;
+                }
                 newVariables[2]++;
                 if (info[0].equals("d")){
                     newVariables[1]++;
@@ -736,15 +467,19 @@ public class AlphabetSoupModel {
         }else if (info[0].equals("rtl")) {
 
             if (newVariables[0] != 0) {
-                newVariables[0]--;
+                if (initial != 0) {
+                    newVariables[0]--;
+                }
                 newVariables[2]++;
                 newVariables[3] = 1;
             }else {
                 newVariables[3] = 0;
             }
         }else if (info[0].equals("ttb")) {
-            if (newVariables[0] != info[3].length() -1) {
-                newVariables[0]++;
+            if (newVariables[0] != info[3].length() - 1) {
+                if (initial != 0) {
+                    newVariables[0]++;
+                }
                 newVariables[1]++;
                 newVariables[3] = 1;
             }else {
@@ -752,7 +487,9 @@ public class AlphabetSoupModel {
             }
         }else if (info[0].equals("btt")) {
             if (newVariables[0] != 0) {
-                newVariables[0]--;
+                if (initial != 0) {
+                    newVariables[0]--;
+                }
                 newVariables[1]++;
                 newVariables[3] = 1;
             }else {
@@ -776,9 +513,9 @@ public class AlphabetSoupModel {
                 String posToCheck = occupiedPositions.get(a).split("-")[0];
                 String letterCheck = occupiedPositions.get(a).split("-")[1];
 
-                if (infoToCheck[0].equals(posToCheck)) {
+                if (posToCheck.equals(infoToCheck[0])) {
                     exit[0] = true;
-                    if(infoToCheck[1].equals(letterCheck)){
+                    if(letterCheck.equals(infoToCheck[1])){
                         exit[1] = true;
                         break;
                     }
