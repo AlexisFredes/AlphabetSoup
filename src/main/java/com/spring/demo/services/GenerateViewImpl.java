@@ -3,7 +3,7 @@ package com.spring.demo.services;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GenerateView implements GenerateViewInterface{
+public class GenerateViewImpl implements GenerateViewInterface{
 
     public String generateView(String letters, int[] configSoup){
 

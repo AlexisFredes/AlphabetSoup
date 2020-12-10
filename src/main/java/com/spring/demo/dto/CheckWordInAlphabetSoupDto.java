@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CheckWordInAlphabetSoup {
+public class CheckWordInAlphabetSoupDto {
 
     private boolean word;
 

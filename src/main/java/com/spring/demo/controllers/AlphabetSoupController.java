@@ -29,9 +29,9 @@ public class AlphabetSoupController {
 
     @GetMapping("/all")
     @ResponseBody
-    public ResponseEntity<AlphabetSoupListResponse> list() {
-        return new ResponseEntity<AlphabetSoupListResponse>(
-        		new AlphabetSoupListResponse(this.alphabetSoupInteface.list()),
+    public ResponseEntity<AlphabetSoupListResponseDto> list() {
+        return new ResponseEntity<AlphabetSoupListResponseDto>(
+        		new AlphabetSoupListResponseDto(this.alphabetSoupInteface.list()),
         		HttpStatus.OK);
     }
 
@@ -66,7 +66,7 @@ public class AlphabetSoupController {
         Words = model.getWords();
 
         return new ResponseEntity<Object>(
-                new AlphabetSoupWordsList(Words), HttpStatus.OK);
+                new AlphabetSoupWordsListDto(Words), HttpStatus.OK);
 
     }
 
@@ -86,7 +86,7 @@ public class AlphabetSoupController {
                 return new ResponseEntity<Object>(new AlphabetSoupCreateErrorDto(Messages.ERROR_INTERNAL_SERVER),
                         HttpStatus.BAD_REQUEST);
             }else {
-                return new ResponseEntity<Object>(new AlphabetSoupCreate(alphabetSoup.getId()),
+                return new ResponseEntity<Object>(new AlphabetSoupCreateDto(alphabetSoup.getId()),
                         HttpStatus.CREATED);
             }
         }
@@ -97,7 +97,7 @@ public class AlphabetSoupController {
 
     @PutMapping(path = "/{id}")
     @ResponseBody
-    public ResponseEntity<CheckWordInAlphabetSoup> checkWordById(
+    public ResponseEntity<CheckWordInAlphabetSoupDto> checkWordById(
             @PathVariable("id") UUID id,
             @RequestBody AlphabetSoupModel alphabetSoup) {
 
@@ -130,8 +130,8 @@ public class AlphabetSoupController {
             exit = true;
         }
 
-        return new ResponseEntity<CheckWordInAlphabetSoup>(
-                new CheckWordInAlphabetSoup(exit), HttpStatus.OK);
+        return new ResponseEntity<CheckWordInAlphabetSoupDto>(
+                new CheckWordInAlphabetSoupDto(exit), HttpStatus.OK);
     }
 
     @DeleteMapping( path = "/{id}" )

@@ -25,13 +25,13 @@ public class AlphabetSoupModel {
     @Column(columnDefinition = "text")
     private String letters;
 
-    private int w = 15; //Ancho de la sopa de letras, por defecto 15
-    private int h = 15; //Largo de la sopa de letras, por de defecto 15
-    private boolean ltr = true; //Habilitar o deshabilitar palabras que van de izquierda a derecha, por defecto true
-    private boolean rtl = false; //Habilitar o deshabilitar palabras que van de derecha a izquierda, por defecto false
-    private boolean ttb = true; //Habilitar o deshabilitar palabras que van desde arriba hacia abajo, por defecto true
-    private boolean btt = false; //Habilitar o deshabilitar palabras que van desde abajo hacia arriba, por defecto false
-    private boolean d = false; //Habilitar o deshabilitar palabras diagonales, por defecto false
+    private int w = 15;
+    private int h = 15;
+    private boolean ltr = true;
+    private boolean rtl = false;
+    private boolean ttb = true;
+    private boolean btt = false;
+    private boolean d = false;
     private int sr;
     private int sc;
     private int er;

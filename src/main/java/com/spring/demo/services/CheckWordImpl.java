@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class CheckWord implements CheckWordInterface {
+public class CheckWordImpl implements CheckWordInterface {
 
     public List<String> checkWordInAlphabetSoup(int[] configSoup, List<String> checkInfo) {
 

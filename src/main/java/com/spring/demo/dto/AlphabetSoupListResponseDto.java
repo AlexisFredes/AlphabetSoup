@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AlphabetSoupListResponse {
+public class AlphabetSoupListResponseDto {
 
 	private List<AlphabetSoupModel> list;
 }
