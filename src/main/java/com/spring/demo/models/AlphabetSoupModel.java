@@ -223,10 +223,6 @@ public class AlphabetSoupModel {
 
     public String addWordAlphabetSoup(String[] info, ArrayList<ArrayList<String>> infoPositions){
 
-        System.out.println(info[0]);
-
-        System.out.println(info[1] + " - " + info[2]);
-
         String newLetters = "";
 
         int pos = 0;
@@ -240,8 +236,6 @@ public class AlphabetSoupModel {
         char soup[][] = new char[this.h][this.w];
 
         for (int i = 0; i < soup.length; i++) {
-
-            System.out.print("|");
 
             for (int j = 0; j < soup[i].length; j++) {
 
@@ -262,11 +256,8 @@ public class AlphabetSoupModel {
                 }
 
                 newLetters += soup[i][j];
-                System.out.print(soup[i][j] + "|");
                 pos++;
             }
-
-            System.out.println("");
 
         }
 
