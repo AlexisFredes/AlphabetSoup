@@ -63,8 +63,8 @@ _si salio todo bien, nos deberia mostrar la imagen que acabamos de correr_
 }
 ```
 _a tener en cuenta:_
-- words = aqui colocaremos las palabras que queramos que aparescan en la sopa
-          separadas con un guion intermedio "-"
+- words = **aqui colocaremos las palabras que queramos que aparescan en la sopa**
+          **separadas con un guion intermedio "-"**
 - w = Ancho de la matriz
 - h = Alto de la matriz
 ### posicion de las palabras
