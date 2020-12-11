@@ -13,7 +13,7 @@ cruzar entre si_
 
 # Requisitos previos
 
-* Tener instalado Java en su version "15"
+* Tener instalado Java
 * Tener instalado Git
 * Tener instalado Docker
 
